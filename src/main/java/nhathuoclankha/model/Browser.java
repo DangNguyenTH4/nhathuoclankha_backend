@@ -17,5 +17,5 @@ public class Browser {
   private String pathToBrowser = "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe"; //userChose or admin setup
   private String domain = "nhathuoclankha.com"; //nhathuoclankha
   private String protocol ="http"; // http / https
-  private String port = "6868"; //6868
+  private String port = "80"; //80
 }

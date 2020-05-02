@@ -242,7 +242,7 @@ let InvoiceCommonComponent = class InvoiceCommonComponent {
         this.data.forEach(e => {
             a = a + e.qty * (e.unitPrice + e.addMore);
         });
-        return a.toLocaleString('vi-vn');
+        return (a * 1000).toLocaleString('vi-vn');
     }
     get getUnitPrice() {
         return;
@@ -290,15 +290,15 @@ class InvoiceRow {
         this.unit = unit;
     }
     get formatNumber() {
-        let a = (this.unitPrice + this.addMore).toLocaleString('vi-vn');
+        let a = ((this.unitPrice + this.addMore) * 1000).toLocaleString('vi-vn');
         return a;
     }
     get formatTotalNumber() {
         let a = (this.unitPrice + this.addMore) * this.qty;
-        return a.toLocaleString('vi-vn');
+        return (a * 1000).toLocaleString('vi-vn');
     }
     get total() {
-        return (this.unitPrice + this.addMore) * this.qty;
+        return ((this.unitPrice + this.addMore) * this.qty) * 1000;
     }
     get amountColumn() {
         let result = '';

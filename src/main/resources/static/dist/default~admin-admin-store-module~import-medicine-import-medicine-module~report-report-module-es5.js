@@ -253,7 +253,7 @@ var InvoiceCommonComponent = /** @class */ (function () {
             this.data.forEach(function (e) {
                 a = a + e.qty * (e.unitPrice + e.addMore);
             });
-            return a.toLocaleString('vi-vn');
+            return (a * 1000).toLocaleString('vi-vn');
         },
         enumerable: true,
         configurable: true
@@ -310,7 +310,7 @@ var InvoiceRow = /** @class */ (function () {
     }
     Object.defineProperty(InvoiceRow.prototype, "formatNumber", {
         get: function () {
-            var a = (this.unitPrice + this.addMore).toLocaleString('vi-vn');
+            var a = ((this.unitPrice + this.addMore) * 1000).toLocaleString('vi-vn');
             return a;
         },
         enumerable: true,
@@ -319,14 +319,14 @@ var InvoiceRow = /** @class */ (function () {
     Object.defineProperty(InvoiceRow.prototype, "formatTotalNumber", {
         get: function () {
             var a = (this.unitPrice + this.addMore) * this.qty;
-            return a.toLocaleString('vi-vn');
+            return (a * 1000).toLocaleString('vi-vn');
         },
         enumerable: true,
         configurable: true
     });
     Object.defineProperty(InvoiceRow.prototype, "total", {
         get: function () {
-            return (this.unitPrice + this.addMore) * this.qty;
+            return ((this.unitPrice + this.addMore) * this.qty) * 1000;
         },
         enumerable: true,
         configurable: true

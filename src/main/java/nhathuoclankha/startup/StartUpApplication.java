@@ -77,7 +77,7 @@ public class StartUpApplication {
   }
 
   /**
-   * Auto open google chrome with path : http://nhathuoclankha.com:6868
+   * Auto open google chrome with path : http://nhathuoclankha.com:80
    */
   public void openBrowser() {
     Optional<Browser> browserOpt = browserRepository.findById(1);

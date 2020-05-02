@@ -5760,7 +5760,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _typescript_angular_client__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../typescript-angular-client */ "./src/typescript-angular-client/index.ts");
 /* harmony import */ var _tokenstorage_service__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./tokenstorage.service */ "./src/app/service/tokenstorage.service.ts");
 /* harmony import */ var _angular_router__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! @angular/router */ "./node_modules/@angular/router/fesm2015/router.js");
-/* harmony import */ var _pages_sharedmodule_toast__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../pages/sharedmodule/toast */ "./src/app/pages/sharedmodule/toast.ts");
+/* harmony import */ var _common_common__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../common/common */ "./src/app/common/common.ts");
+/* harmony import */ var _pages_sharedmodule_toast__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../pages/sharedmodule/toast */ "./src/app/pages/sharedmodule/toast.ts");
+/* harmony import */ var _roleconstant__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./roleconstant */ "./src/app/service/roleconstant.ts");
+
+
 
 
 
@@ -5788,7 +5792,7 @@ let AuthService = class AuthService {
             this.wasAuthen = true;
             this.tokenStorage.saveRole(data.role);
             this.tokenStorage.saveUsername(data.name);
-            this.router.navigate(["store/sell-medicine"]);
+            this.navigateByRole(data.role);
             return "OK";
         }, error => {
             this.toast.notify(3, "Login failed!", "Mật khẩu / tài khoản không đúng!");
@@ -5813,6 +5817,20 @@ let AuthService = class AuthService {
     getUserName() {
         return this.tokenStorage.getUsername();
     }
+    navigateByRole(role) {
+        if (role === _roleconstant__WEBPACK_IMPORTED_MODULE_7__["RoleConstant"].ROLEACCOUNTANT) {
+            this.router.navigate(['/' + _common_common__WEBPACK_IMPORTED_MODULE_5__["CommonData"].StorePagePrefix + '/report/report1']);
+        }
+        else if (role === _roleconstant__WEBPACK_IMPORTED_MODULE_7__["RoleConstant"].ROLEADMIN ||
+            role === _roleconstant__WEBPACK_IMPORTED_MODULE_7__["RoleConstant"].ROLEDIRECTOR ||
+            role === _roleconstant__WEBPACK_IMPORTED_MODULE_7__["RoleConstant"].ROLESTAFF) {
+            this.router.navigate(['/' + _common_common__WEBPACK_IMPORTED_MODULE_5__["CommonData"].StorePagePrefix + "/sell-medicine"]);
+        }
+        else {
+            this.tokenStorage.clear();
+            this.router.navigate(['auth/login']);
+        }
+    }
 };
 AuthService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])({
@@ -5821,9 +5839,30 @@ AuthService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
     tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [_typescript_angular_client__WEBPACK_IMPORTED_MODULE_2__["AuthenticateControllerService"],
         _angular_router__WEBPACK_IMPORTED_MODULE_4__["Router"],
         _tokenstorage_service__WEBPACK_IMPORTED_MODULE_3__["TokenStorageService"],
-        _pages_sharedmodule_toast__WEBPACK_IMPORTED_MODULE_5__["ToastrService"]])
+        _pages_sharedmodule_toast__WEBPACK_IMPORTED_MODULE_6__["ToastrService"]])
 ], AuthService);
 
+
+
+/***/ }),
+
+/***/ "./src/app/service/roleconstant.ts":
+/*!*****************************************!*\
+  !*** ./src/app/service/roleconstant.ts ***!
+  \*****************************************/
+/*! exports provided: RoleConstant */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "RoleConstant", function() { return RoleConstant; });
+class RoleConstant {
+}
+RoleConstant.ROLEUSER = "ROLE_USER";
+RoleConstant.ROLEADMIN = "ROLE_ADMIN";
+RoleConstant.ROLEDIRECTOR = "ROLE_DIRECTOR";
+RoleConstant.ROLESTAFF = "ROLE_STAFF";
+RoleConstant.ROLEACCOUNTANT = "ROLE_ACCOUNTANT";
 
 
 /***/ }),
@@ -5944,8 +5983,8 @@ __webpack_require__.r(__webpack_exports__);
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 const environment = {
     production: false,
-    host: 'http://' + window.location.hostname + ':6868',
-    hostNoHttp: window.location.hostname + ':6868'
+    host: 'http://' + window.location.hostname + ':80',
+    hostNoHttp: window.location.hostname + ':80'
 };
 
 
