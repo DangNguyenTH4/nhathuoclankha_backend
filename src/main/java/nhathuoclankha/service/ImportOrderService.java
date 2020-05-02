@@ -10,6 +10,8 @@ import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
+import nhathuoclankha.auth.service.SecurityService;
 import nhathuoclankha.composite.ImportOrderDetaiKey;
 import nhathuoclankha.dto.ImportOrderDto;
 import nhathuoclankha.dto.MedicineDto;
@@ -25,6 +27,7 @@ import nhathuoclankha.repository.ImportOrderRepositoryCustomer;
 import nhathuoclankha.utils.DateUtils;
 
 @Service
+@Slf4j
 public class ImportOrderService {
   @Autowired
   private ImportOrderRepository importOrderRepository;
@@ -38,21 +41,30 @@ public class ImportOrderService {
   private MedicineMapper medicineMapper;
 
   @Autowired
+  private SecurityService securityService;
+  
+  @Autowired
   private ImportOrderDetailRepository importOrderDetailRepository;
 
   @Transactional
   public ImportOrderDto importOrder(ImportOrderDto importOrderDto) {
+	log.info(">>> Import order processing ...");
     List<MedicineDto> listMedicineDto = importOrderDto.getListMedicineImport();
     if(listMedicineDto==null || listMedicineDto.size()==0) {
       throw new EmptyException("Chưa có thuốc nào được nhập.");
     }
     ImportOrder importOrder = importOrderMapper.toEntity(importOrderDto);
+    //Get user name:
+    String username = securityService.getUserName();
+    log.info(">>> client user : {}, serveruser: {}",importOrder.getStaffName(),username);
+    log.info(">>> user : {}, import new order.",username);
+    
+    importOrder.setStaffName(username);
+    
     if (importOrder.getImportDate() == null)
       importOrder.setImportDate(Instant.now());
     List<ImportOrderDetail> listImportOrderDetail = new ArrayList<ImportOrderDetail>();
     importOrder = importOrderRepository.save(importOrder);
-    System.out.println(importOrder.getId());
-
 
     for (MedicineDto medicineDto : listMedicineDto) {
       // Update quantity total
@@ -64,13 +76,11 @@ public class ImportOrderService {
         importOrderDetail.setDateImport(Instant.now());
       importOrderDetail.setMedicine(m);
       importOrderDetail.setImportOrder(importOrder);
-      System.out
-          .println("---------" + importOrderDetail.getImportOrderDetailKey().getImportOrderId()
+      log.info("---------" + importOrderDetail.getImportOrderDetailKey().getImportOrderId()
               + "---------" + importOrderDetail.getImportOrderDetailKey().getMedicineId());
       importOrderDetail.getImportOrderDetailKey().setMedicineId(m.getId());
       importOrderDetail.getImportOrderDetailKey().setImportOrderId(importOrder.getId());
-      System.out
-          .println("---------" + importOrderDetail.getImportOrderDetailKey().getImportOrderId()
+      log.info("---------" + importOrderDetail.getImportOrderDetailKey().getImportOrderId()
               + "---------" + importOrderDetail.getImportOrderDetailKey().getMedicineId());
       System.out.println(importOrder.getId());
       importOrderDetail.setPriceId(m.getPrice().getId());

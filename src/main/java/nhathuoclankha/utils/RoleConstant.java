@@ -6,5 +6,6 @@ public class RoleConstant {
   public final static String ROLEADMIN = "ROLE_ADMIN";
   public final static String ROLEDIRECTOR = "ROLE_DIRECTOR";
   public final static String ROLESTAFF= "ROLE_STAFF";
+  public final static String ROLEACCOUNTANT = "ROLE_ACCOUNTANT";
 
 }

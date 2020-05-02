@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import nhathuoclankha.auth.interfaces.role.MixRoleAdminAccountant;
 import nhathuoclankha.dto.ImportOrderDto;
 import nhathuoclankha.dto.MedicineDtoAdmin;
 import nhathuoclankha.dto.ReportDto;
@@ -62,14 +64,14 @@ public class AdminController {
 	}
 
 	@GetMapping("/report")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@MixRoleAdminAccountant
 	public List<ReportDto> report(@RequestParam(required = false) String fromDate,
 			@RequestParam(required = false) String toDate) {
 		return reportService.getReport(fromDate, toDate);
 	}
 
 	@GetMapping("/history-import-order")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@MixRoleAdminAccountant
 	public List<ImportOrderDto> getHistoryImport(@RequestParam(required = false) String fromDate,
 			@RequestParam(required = false) String toDate) {
 		List<ImportOrderDto> listResult = importOrderService.getHistoryImportOrder(fromDate, toDate);
@@ -78,7 +80,7 @@ public class AdminController {
 	}
 
 	@GetMapping("/history-sell-order")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@MixRoleAdminAccountant
 	public List<SellOrderDto> getHistorySell(@RequestParam(required = false) String fromDate,
 			@RequestParam(required = false) String toDate) {
 		List<SellOrderDto> listResult = sellMedicineService.getHistorySell(fromDate, toDate);
@@ -87,13 +89,13 @@ public class AdminController {
 	}
 
 	@GetMapping("/report2")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@MixRoleAdminAccountant
 	public List<ReportDto> report2() {
 		return reportService.getReport(null, null);
 	}
 
 	@PostMapping("/get-list-medicine")
-	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	@MixRoleAdminAccountant
 	public ResponseEntity<List<MedicineDtoAdmin>> getListAll() {
 		List<MedicineDtoAdmin> listResult = medicineService.getAllMedicineAdminOrderByName();
 
@@ -101,7 +103,7 @@ public class AdminController {
 	}
 
 	@PostMapping("/detail-history-sell")
-  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  @MixRoleAdminAccountant
   public List<SellOrderDto> detailSell(@RequestParam(required=false) String parameters,@RequestParam(required = false) String fromDate,
 	      @RequestParam(required = false) String toDate) throws NotSupportAnyMoreException{
 	  return sellMedicineService.getDetailHistorySell(parameters, fromDate, toDate);

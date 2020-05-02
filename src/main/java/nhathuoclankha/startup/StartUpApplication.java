@@ -6,6 +6,7 @@ import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import nhathuoclankha.auth.model.User;
 import nhathuoclankha.auth.repository.UserRepository;
+import nhathuoclankha.factory.Factory;
 import nhathuoclankha.model.Browser;
 import nhathuoclankha.repository.BrowserRepository;
 import nhathuoclankha.utils.RoleConstant;
@@ -34,7 +35,7 @@ public class StartUpApplication {
     User user = userRepository.findByUsername("dangadmin");
 
     if (user == null) {
-      user = new User();
+      user = Factory.getUserInstant();
       user.setUsername("dangadmin");
       user.setRole(RoleConstant.ROLEADMIN);
       user.setPassword(passwordEncoder.encode("dangadmin"));
@@ -42,7 +43,7 @@ public class StartUpApplication {
     }
     User user2 = userRepository.findByUsername("dangadmin2");
     if (user2 == null) {
-      user2 = new User();
+      user2 = Factory.getUserInstant();
       user2.setUsername("dangadmin2");
       user2.setPassword(passwordEncoder.encode("dangadmin2"));
       user2.setRole(RoleConstant.ROLEADMIN);
@@ -50,7 +51,7 @@ public class StartUpApplication {
     }
     User user3 = userRepository.findByUsername("lankha");
     if (user3 == null) {
-      user3 = new User();
+      user3 = Factory.getUserInstant();
       user3.setUsername("lankha");
       user3.setPassword(passwordEncoder.encode("hieuthuoclankha@123"));
       user3.setRole(RoleConstant.ROLEADMIN);
@@ -58,11 +59,20 @@ public class StartUpApplication {
     }
     User user4 = userRepository.findByUsername("nhanvien1");
     if (user4 == null) {
-      user4 = new User();
+      user4 = Factory.getUserInstant();
       user4.setUsername("nhanvien1");
       user4.setPassword(passwordEncoder.encode("nhanvien1@123"));
       user4.setRole(RoleConstant.ROLESTAFF);
       userRepository.save(user4);
+    }
+    
+    User accountantDefaultUser = userRepository.findByUsername("ketoan");
+    if(accountantDefaultUser == null) {
+    	accountantDefaultUser = Factory.getUserInstant();
+    	accountantDefaultUser.setUsername("ketoan");
+    	accountantDefaultUser.setPassword(passwordEncoder.encode("ketoan1"));
+    	accountantDefaultUser.setRole(RoleConstant.ROLEACCOUNTANT);
+    	userRepository.save(accountantDefaultUser);
     }
   }
 
