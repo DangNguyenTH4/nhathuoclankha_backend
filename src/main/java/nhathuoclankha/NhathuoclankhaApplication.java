@@ -5,10 +5,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.server.PortInUseException;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 @SpringBootApplication
-public class NhathuoclankhaApplication implements CommandLineRunner {
+public class NhathuoclankhaApplication extends SpringBootServletInitializer implements CommandLineRunner {
   @Autowired
   private StartUpApplication startUpApplication;
   public static void main(String[] args) {
@@ -21,7 +23,10 @@ public class NhathuoclankhaApplication implements CommandLineRunner {
     }
   }
 
-
+  @Override
+  protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+      return builder.sources(NhathuoclankhaApplication.class);
+  } 
   @Override
   public void run(String... args) throws Exception {
     startUpApplication.resgisterApplicationAutoStartup();

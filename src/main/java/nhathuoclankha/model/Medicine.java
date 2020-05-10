@@ -37,7 +37,12 @@ public class Medicine {
 //	private List<SellOrderDetail> sellOrderDetail;
 
   private int quantityExsiting;
-
+  
+  private String description;
+  private String origin;
+  private String groupMedicine;
+  private String note;
+  
   private String unit;
   @Column(length = 100, unique = true)
   private String code;
@@ -107,6 +112,40 @@ public class Medicine {
   public void setPrice(Price price) {
     this.price = price;
   }
+
+public String getDescription() {
+	return description;
+}
+
+public void setDescription(String description) {
+	this.description = description;
+}
+
+public String getOrigin() {
+	return origin;
+}
+
+public void setOrigin(String origin) {
+	this.origin = origin;
+}
+
+public String getGroup() {
+	return groupMedicine;
+}
+
+public void setGroup(String group) {
+	this.groupMedicine = group;
+}
+
+public String getNote() {
+	return note;
+}
+
+public void setNote(String note) {
+	this.note = note;
+}
+  
+  
 
 
 }
