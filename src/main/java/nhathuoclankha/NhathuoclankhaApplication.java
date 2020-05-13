@@ -13,6 +13,7 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 public class NhathuoclankhaApplication extends SpringBootServletInitializer implements CommandLineRunner {
   @Autowired
   private StartUpApplication startUpApplication;
+
   public static void main(String[] args) {
     try {
       SpringApplication.run(NhathuoclankhaApplication.class, args);
@@ -32,6 +33,7 @@ public class NhathuoclankhaApplication extends SpringBootServletInitializer impl
     startUpApplication.resgisterApplicationAutoStartup();
     startUpApplication.openBrowser();
     startUpApplication.initUser();
+
 
   }
 
