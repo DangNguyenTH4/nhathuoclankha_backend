@@ -26,6 +26,7 @@ import nhathuoclankha.model.Company;
 import nhathuoclankha.model.Medicine;
 import nhathuoclankha.model.Price;
 import nhathuoclankha.repository.MedicineRepository;
+import org.springframework.util.StringUtils;
 
 @Service
 public class MedicineService {
@@ -112,6 +113,11 @@ public class MedicineService {
   }
 
   private Medicine createOne(Medicine medicine, boolean isNewCompany) {
+
+    if(StringUtils.isEmpty(medicine.getCode()) || StringUtils.isEmpty(medicine.getMedicineName())){
+      throw new CreateNewException("Mã thuốc và tên thuốc không được trống");
+    }
+
     List<Medicine> list = medicineRepository.findByCode(medicine.getCode());
     Medicine temp = null;
     if (list != null && list.size() != 0) {

@@ -62,6 +62,9 @@ public class SellMedicineService {
 		sellOrder.setTotal(0L);
 
 		if (sellOrder.getCustomer() != null) {
+			if(sellOrder.getCustomer().getId()!=null){
+				Optional<Customer> getCustomerById = customerRepository.findById(sellOrder.getCustomer().getId());
+			}
 			// Find customer by phone. 0
 			List<Customer> customers = customerRepository.findByPhoneNumber(sellOrder.getCustomer().getPhoneNumber());
 			if (customers != null && customers.size() != 0) {
