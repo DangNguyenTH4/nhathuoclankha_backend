@@ -29,6 +29,25 @@ public class Price {
 
   private Instant dateApply;
 
+  private Long boughtPrice;
+  private Long sellForCompanyPrice;
+  private Long sellForFarmPrice;
+  private Long sellForPersonalPrice;
+
+
+  public Integer getId() {
+    return id;
+  }
+
+
+  public Long getBoughtPrice() {
+    return boughtPrice;
+  }
+
+
+  public void setBoughtPrice(Long boughtPrice) {
+    this.boughtPrice = boughtPrice;
+  }
   public Integer getMedicineId() {
     return medicineId;
   }
@@ -45,29 +64,6 @@ public class Price {
 
   public void setDateApply(Instant dateApply) {
     this.dateApply = dateApply;
-  }
-
-  private Long boughtPrice;
-
-  private Long sellForCompanyPrice;
-
-  private Long sellForFarmPrice;
-
-  private Long sellForPersonalPrice;
-
-
-  public Integer getId() {
-    return id;
-  }
-
-
-  public Long getBoughtPrice() {
-    return boughtPrice;
-  }
-
-
-  public void setBoughtPrice(Long boughtPrice) {
-    this.boughtPrice = boughtPrice;
   }
 
 

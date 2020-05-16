@@ -17,6 +17,7 @@ public class MedicineMapper extends Mapper<Medicine, MedicineDto> {
 		MedicineDto dto = null;
 		if (e != null) {
 			dto = new MedicineDto();
+			dto.setId(e.getId());
 			dto.setCode(e.getCode());
 			dto.setAmount(e.getQuantityExsiting());
 			dto.setName(e.getMedicineName());
@@ -34,6 +35,7 @@ public class MedicineMapper extends Mapper<Medicine, MedicineDto> {
 		if(d!=null) {
 			Medicine e = new Medicine();
 			e.setCode(d.getCode());
+			e.setId(d.getId());
 //			e.setCompany(d.);
 //			e.setId();
 			e.setMedicineName(d.getName());

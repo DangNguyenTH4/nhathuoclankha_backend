@@ -1,5 +1,6 @@
 package nhathuoclankha.auth.service;
 
+import nhathuoclankha.exceptions.AuthorizationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +15,13 @@ public class SecurityService {
 			UserDetailCustom user = (UserDetailCustom) SecurityContextHolder.getContext().getAuthentication()
 					.getPrincipal();
 			return user != null ? user.getUsername() : "";
-		} catch (Exception e) {
-			log.info(">> get user name failed!");
+		}
+		catch (ClassCastException ex){
+			log.error(">>anonymousUser!");
+			throw new AuthorizationException("Đang là anonymousUser!");
+		}
+		catch (Exception e) {
+			log.error(">> get user name failed!");
 		}
 		return "";
 

@@ -2,13 +2,17 @@ package nhathuoclankha.service;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import nhathuoclankha.auth.model.UserDetailCustom;
+import nhathuoclankha.exceptions.BadRequestException;
 import nhathuoclankha.mapper.MedicineAdminMapper;
+import nhathuoclankha.utils.AppConstants.CompanyMessageConstant;
+import nhathuoclankha.utils.AppConstants.MedicineMessageConstants;
+import nhathuoclankha.utils.AppConstants.PriceMessageConstant;
+import nhathuoclankha.utils.AppConstants.QuantityMessageConstant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +59,8 @@ public class MedicineService {
       if (medicine.getQuantityExsiting() < dto.getAmount() || dto.getAmount() <= 0) {
         logger.info(dto.getAmount() + "");
         logger.error("Over or Amount invalid");
-        throw new OverExistingQuantityEception("Số lượng tồn không đủ. Mã : " + medicine.getCode());
+        throw new OverExistingQuantityEception(
+            MedicineMessageConstants.NOT_ENOUGH_QUANTITY + medicine.getCode());
       } else {
         int existing = medicine.getQuantityExsiting() - dto.getAmount();
         medicine.setQuantityExsiting(existing);
@@ -63,12 +68,13 @@ public class MedicineService {
       }
       return result;
     } else {
-      throw new EntityNotFoundException("Không tìm thấy mã thuốc: " + dto.getCode());
+      throw new EntityNotFoundException(MedicineMessageConstants.NOT_FOUND_MEDICINE_CODE + dto.getCode());
     }
 
   }
 
   public Medicine updateQuantityExistingWhenImport(MedicineDto dto) {
+    logger.info(">>> updateQuantityExistingWhenImport: {}", dto.getCode());
     List<Medicine> list = medicineRepository.findByCode(dto.getCode());
     Medicine medicine = null;
     if (list != null && list.size() != 0) {
@@ -79,15 +85,24 @@ public class MedicineService {
       if (dto.getAmount() <= 0) {
         logger.info(dto.getAmount() + "");
         logger.error("Amount is invalid");
-        throw new ExistingQuantityException("Số lượng thêm không đúng");
-      } else {
+        throw new ExistingQuantityException(QuantityMessageConstant.WRONG_AMOUNT);
+
+      } else if ((dto.getBoughtPrice()!= null && dto.getBoughtPrice() <= 0) ||
+          (dto.getPriceForCompany() != null && dto.getPriceForCompany() < 0) ||
+          (dto.getPriceForFarm() !=null && dto.getPriceForFarm() < 0) ||
+          (dto.getPriceForPersonal() != null && dto.getPriceForPersonal() < 0)) {
+        throw new BadRequestException(PriceMessageConstant.WRONG_PRICE);
+      }
+
+      else {
         int existing = medicine.getQuantityExsiting() + dto.getAmount();
         medicine.setQuantityExsiting(existing);
         result = medicineRepository.save(medicine);
       }
       return result;
     } else {
-      throw new EntityNotFoundException("Không tìm thấy mã thuốc: " + dto.getCode());
+      throw new EntityNotFoundException(
+          MedicineMessageConstants.NOT_FOUND_MEDICINE_CODE + dto.getCode());
     }
   }
 
@@ -115,7 +130,7 @@ public class MedicineService {
   private Medicine createOne(Medicine medicine, boolean isNewCompany) {
 
     if(StringUtils.isEmpty(medicine.getCode()) || StringUtils.isEmpty(medicine.getMedicineName())){
-      throw new CreateNewException("Mã thuốc và tên thuốc không được trống");
+      throw new CreateNewException(MedicineMessageConstants.MUST_NOT_BLANK_MEDICINE_XXX);
     }
 
     List<Medicine> list = medicineRepository.findByCode(medicine.getCode());
@@ -125,7 +140,7 @@ public class MedicineService {
     }
 
     if (temp != null) {
-      throw new CreateNewException("Mã thuốc đã tồn tại!");
+      throw new CreateNewException(MedicineMessageConstants.EXISTED_MEDICINE_CODE);
     }
     // get company from clientMedicineAdminMapper
     Company com = medicine.getCompany();
@@ -145,7 +160,7 @@ public class MedicineService {
       com = companyService.findById(com.getId());
     }
     if (com == null && !isNewCompany) {
-      throw new EntityNotFoundException("Công ty không tồn tại!");
+      throw new EntityNotFoundException(CompanyMessageConstant.NOT_EXIST_COMPANY);
     }
     medicine.setCompany(com);
     Price price = medicine.getPrice();
