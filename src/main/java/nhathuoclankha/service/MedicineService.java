@@ -73,7 +73,7 @@ public class MedicineService {
 
   }
 
-  public Medicine updateQuantityExistingWhenImport(MedicineDto dto) {
+  public Medicine updateQuantityExistingAndNewPriceWhenImport(MedicineDto dto) {
     logger.info(">>> updateQuantityExistingWhenImport: {}", dto.getCode());
     List<Medicine> list = medicineRepository.findByCode(dto.getCode());
     Medicine medicine = null;
@@ -83,7 +83,6 @@ public class MedicineService {
     Medicine result = null;
     if (medicine != null) {
       if (dto.getAmount() <= 0) {
-        logger.info(dto.getAmount() + "");
         logger.error("Amount is invalid");
         throw new ExistingQuantityException(QuantityMessageConstant.WRONG_AMOUNT);
 
@@ -95,8 +94,14 @@ public class MedicineService {
       }
 
       else {
+        //Create new Price :
+        Price price = this.buildPriceFromMedicineDto(dto, medicine.getId());
+        priceService.createAndSavePriceBaseOnOldPrice(price,medicine.getPrice());
+
         int existing = medicine.getQuantityExsiting() + dto.getAmount();
         medicine.setQuantityExsiting(existing);
+        //update new price for medicine
+        medicine.setPrice(price);
         result = medicineRepository.save(medicine);
       }
       return result;
@@ -203,5 +208,16 @@ public class MedicineService {
       });
     }
     return listDto;
+  }
+  private Price buildPriceFromMedicineDto(MedicineDto medicineDto, Integer medicineId){
+    logger.info(">>> build price from medicine dto");
+    Price price = new Price();
+    price.setMedicineId(medicineId);
+    price.setBoughtPrice(medicineDto.getBoughtPrice());
+    price.setSellForPersonalPrice(medicineDto.getPriceForPersonal());
+    price.setSellForFarmPrice(medicineDto.getPriceForFarm());
+    price.setSellForCompanyPrice(medicineDto.getPriceForCompany());
+    price.setDateApply(Instant.now());
+    return price;
   }
 }

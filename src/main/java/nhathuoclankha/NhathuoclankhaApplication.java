@@ -31,7 +31,7 @@ public class NhathuoclankhaApplication extends SpringBootServletInitializer impl
   @Override
   public void run(String... args) throws Exception {
     startUpApplication.resgisterApplicationAutoStartup();
-    startUpApplication.openBrowser();
+//    startUpApplication.openBrowser();
     startUpApplication.initUser();
 
 

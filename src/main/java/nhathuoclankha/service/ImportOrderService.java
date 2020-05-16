@@ -51,6 +51,11 @@ public class ImportOrderService {
   @Autowired
   private ImportOrderDetailRepository importOrderDetailRepository;
 
+  /**
+   *
+   * @param importOrderDto
+   * @return
+   */
   @Transactional
   public ImportOrderDto importOrder(ImportOrderDto importOrderDto) {
     log.info(">>> Import order processing ...");
@@ -74,19 +79,15 @@ public class ImportOrderService {
 
     List<ImportOrderDetail> listImportOrderDetail = new ArrayList<ImportOrderDetail>();
     for (MedicineDto medicineDto : listMedicineDto) {
-      // Update quantity total
-      Medicine m = medicineService.updateQuantityExistingWhenImport(medicineDto);
+      // Update quantity total and new price
+      Medicine m = medicineService.updateQuantityExistingAndNewPriceWhenImport(medicineDto);
 
-      medicineDto.setId(m.getId());
-      Price price = this.buildPriceFromMedicineDto(medicineDto);
-
-      price = priceService.createAndSavePriceBaseOnOldPrice(price, m.getPrice());
 
       // Create import order detail
       ImportOrderDetail importOrderDetail = new ImportOrderDetail();
       importOrderDetail.setAmount(medicineDto.getAmount());
       importOrderDetail.setExpiryDate(medicineDto.getExpiryDate());
-      importOrderDetail.setPrice(price);
+      importOrderDetail.setPrice(m.getPrice());
 
       if (importOrderDto.getImportDate() == null) {
         importOrderDetail.setDateImport(Instant.now());
@@ -106,7 +107,12 @@ public class ImportOrderService {
     return importOrderDto;
   }
 
-
+  /**
+   * history import order.
+   * @param fromDate
+   * @param toDate
+   * @return
+   */
   public List<ImportOrderDto> getHistoryImportOrder(String fromDate, String toDate) {
     Instant from = DateUtils.getInstantDateQuery(fromDate);
     Instant to = DateUtils.getInstantDateQuery(toDate);
@@ -127,7 +133,7 @@ public class ImportOrderService {
       for (ImportOrderDetail iod : importOrderDetailList) {
         MedicineDto medicineDto = medicineMapper.toDto(iod.getMedicine());
         medicineDto.setAmount(iod.getAmount());
-        medicineDto.setAddMore(0L);
+        medicineDto.setRealSellPrice(0L);
         listMedicineDto.add(medicineDto);
       }
       dto.setListMedicineImport(listMedicineDto);
@@ -138,15 +144,5 @@ public class ImportOrderService {
     return resultList;
   }
 
-  private Price buildPriceFromMedicineDto(MedicineDto medicineDto){
-    log.info(">>> build price from medicine dto");
-    Price price = new Price();
-    price.setBoughtPrice(medicineDto.getBoughtPrice());
-    price.setSellForPersonalPrice(medicineDto.getPriceForPersonal());
-    price.setSellForFarmPrice(medicineDto.getPriceForFarm());
-    price.setSellForCompanyPrice(medicineDto.getPriceForCompany());
-    price.setMedicineId(medicineDto.getId());
-    price.setDateApply(Instant.now());
-    return price;
-  }
+
 }

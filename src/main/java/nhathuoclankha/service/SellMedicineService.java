@@ -29,274 +29,277 @@ import nhathuoclankha.utils.DateUtils;
 
 @Service
 public class SellMedicineService {
-	@Autowired
-	private SellOrderRepository sellOrderRepository;
-	@Autowired
-	private SellOrderDetailRepository sellOrderDetailRepository;
-	@Autowired
-	private CustomerRepository customerRepository;
-	@Autowired
-	private MedicineService medicineService;
-	@Autowired
-	private SellOrderMapper sellOrderMapper;
-	@Autowired
-	private SellOrderDetailRepositoryCustom sellOrderDetailRepositoryCustom;
 
-	private Logger logger = LoggerFactory.getLogger(SellMedicineService.class);
+  @Autowired
+  private SellOrderRepository sellOrderRepository;
+  @Autowired
+  private SellOrderDetailRepository sellOrderDetailRepository;
+  @Autowired
+  private CustomerRepository customerRepository;
+  @Autowired
+  private MedicineService medicineService;
+  @Autowired
+  private SellOrderMapper sellOrderMapper;
+  @Autowired
+  private SellOrderDetailRepositoryCustom sellOrderDetailRepositoryCustom;
 
-	/**
-	 * Tạo hóa đơn bán hàng.
-	 * 
-	 * @param sellOrderDto
-	 * @return
-	 */
-	@Transactional
-	public SellOrderDto createSellOrder(SellOrderDto sellOrderDto) {
-		Set<MedicineDto> listMedicineDto = sellOrderDto.getListMedicines();
-		if (listMedicineDto == null || listMedicineDto.size() == 0) {
-			throw new EmptyException("Không có thuốc nào trong đơn hàng!");
-		}
-		SellOrder sellOrder = sellOrderMapper.toEntity(sellOrderDto);
-		// Set total to 0
-		Long totalFromClient = sellOrder.getTotal();
-		sellOrder.setTotal(0L);
+  private Logger logger = LoggerFactory.getLogger(SellMedicineService.class);
 
-		if (sellOrder.getCustomer() != null) {
-			if(sellOrder.getCustomer().getId()!=null){
-				Optional<Customer> getCustomerById = customerRepository.findById(sellOrder.getCustomer().getId());
-			}
-			// Find customer by phone. 0
-			List<Customer> customers = customerRepository.findByPhoneNumber(sellOrder.getCustomer().getPhoneNumber());
-			if (customers != null && customers.size() != 0) {
-				// Get the lastest customer with the phone.
-				sellOrder.setCustomer(customers.get(customers.size() - 1));
-			} else {
-				// if no name, or no phone or ...
-				if (StringUtils.isEmpty(sellOrder.getCustomer().getName())
-						|| StringUtils.isEmpty(sellOrder.getCustomer().getPhoneNumber())
-				// .... add more later TOTO : for what???
-				) {
-					if (StringUtils.isEmpty(sellOrder.getCustomer().getName())) {
-						sellOrder.getCustomer().setName("Khách lẻ");
-						sellOrder.getCustomer().setId(null);
+  /**
+   * Tạo hóa đơn bán hàng.
+   *
+   * @param sellOrderDto
+   * @return
+   */
+  @Transactional
+  public SellOrderDto createSellOrder(SellOrderDto sellOrderDto) {
+    Set<MedicineDto> listMedicineDto = sellOrderDto.getListMedicines();
+    if (listMedicineDto == null || listMedicineDto.size() == 0) {
+      throw new EmptyException("Không có thuốc nào trong đơn hàng!");
+    }
+    SellOrder sellOrder = sellOrderMapper.toEntity(sellOrderDto);
+    // Set total to 0
+    Long totalFromClient = sellOrder.getTotal();
+    sellOrder.setTotal(0L);
 
-					}
-				}
-				Customer cus = customerRepository.save(sellOrder.getCustomer());
-				sellOrder.setCustomer(cus);
-			}
+    if (sellOrder.getCustomer() != null) {
+      if (sellOrder.getCustomer().getId() != null) {
+        Optional<Customer> getCustomerById = customerRepository
+            .findById(sellOrder.getCustomer().getId());
+      }
+      // Find customer by phone. 0
+      List<Customer> customers = customerRepository
+          .findByPhoneNumber(sellOrder.getCustomer().getPhoneNumber());
+      if (customers != null && customers.size() != 0) {
+        // Get the lastest customer with the phone.
+        sellOrder.setCustomer(customers.get(customers.size() - 1));
+      } else {
+        // if no name, or no phone or ...
+        if (StringUtils.isEmpty(sellOrder.getCustomer().getName())
+            || StringUtils.isEmpty(sellOrder.getCustomer().getPhoneNumber())
+          // .... add more later TOTO : for what???
+        ) {
+          if (StringUtils.isEmpty(sellOrder.getCustomer().getName())) {
+            sellOrder.getCustomer().setName("Khách lẻ");
+            sellOrder.getCustomer().setId(null);
 
-		}
-		// Save import order
-		sellOrder.setTime(Instant.now());
-		sellOrder = sellOrderRepository.save(sellOrder);
-		System.out.println(sellOrder.getId());
-		// Save Import Order Detail
-		List<SellOrderDetail> listSellOrderDetail = new ArrayList<SellOrderDetail>();
+          }
+        }
+        Customer cus = customerRepository.save(sellOrder.getCustomer());
+        sellOrder.setCustomer(cus);
+      }
 
-		for (MedicineDto medicineDto : listMedicineDto) {
-			// Update amount existing
-			Medicine m = medicineService.updateQuantityExsitingWhenSell(medicineDto);
-			// Create sellORder detail
-			SellOrderDetail sellOrderDetail = new SellOrderDetail();
-			sellOrderDetail.setAmount(medicineDto.getAmount());
-			sellOrderDetail.setAddMore(medicineDto.getAddMore());
-			sellOrderDetail.setMedicine(m);
-			sellOrderDetail.setSellOrder(sellOrder);
-			sellOrderDetail.setPriceId(m.getPrice().getId());
-			sellOrderDetail.setTime(Instant.now());
-			listSellOrderDetail.add(sellOrderDetail);
+    }
+    // Save import order
+    sellOrder.setTime(Instant.now());
+    sellOrder = sellOrderRepository.save(sellOrder);
+    System.out.println(sellOrder.getId());
+    // Save Import Order Detail
+    List<SellOrderDetail> listSellOrderDetail = new ArrayList<SellOrderDetail>();
 
-			if (sellOrder.getCustomer() != null) {
-				if ("company".equals(sellOrder.getCustomer().getType())) {
-					long temp = sellOrder.getTotal()
-							+ this.calculateTotalOfMedicine(m.getPrice().getSellForCompanyPrice(),
-									sellOrderDetail.getAddMore(), medicineDto.getAmount());
-					sellOrder.setTotal(temp);
-					sellOrderDetail.setPriceSell(m.getPrice().getSellForCompanyPrice());
+    for (MedicineDto medicineDto : listMedicineDto) {
+      // Update amount existing
+      Medicine m = medicineService.updateQuantityExsitingWhenSell(medicineDto);
+      // Create sellORder detail
+      SellOrderDetail sellOrderDetail = new SellOrderDetail();
+      sellOrderDetail.setAmount(medicineDto.getAmount());
+      sellOrderDetail.setRealSellPrice(medicineDto.getRealSellPrice());
+      sellOrderDetail.setMedicine(m);
+      sellOrderDetail.setSellOrder(sellOrder);
+      sellOrderDetail.setPriceId(m.getPrice().getId());
+      sellOrderDetail.setTime(Instant.now());
+      listSellOrderDetail.add(sellOrderDetail);
 
-				} else if ("farm".equals(sellOrder.getCustomer().getType())) {
-					long temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(m.getPrice().getSellForFarmPrice(),
-							sellOrderDetail.getAddMore(), medicineDto.getAmount());
-					sellOrder.setTotal(temp);
+      if (sellOrder.getCustomer() != null) {
+        if ("company".equals(sellOrder.getCustomer().getType())) {
+          long temp = sellOrder.getTotal()
+              + this.calculateTotalOfMedicine(sellOrderDetail.getRealSellPrice(),
+              medicineDto.getAmount());
+          sellOrder.setTotal(temp);
+          sellOrderDetail.setPriceSell(m.getPrice().getSellForCompanyPrice());
 
-					sellOrderDetail.setPriceSell(m.getPrice().getSellForFarmPrice());
-				} else {
-					long temp = sellOrder.getTotal()
-							+ this.calculateTotalOfMedicine(m.getPrice().getSellForPersonalPrice(),
-									sellOrderDetail.getAddMore(), medicineDto.getAmount());
+        } else if ("farm".equals(sellOrder.getCustomer().getType())) {
+          long temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(
+              sellOrderDetail.getRealSellPrice(), medicineDto.getAmount());
+          sellOrder.setTotal(temp);
 
-					sellOrder.setTotal(temp);
-					sellOrderDetail.setPriceSell(m.getPrice().getSellForPersonalPrice());
-				}
-			}
-			// But need to test => show i put two case. Then need to remove
-			else {
-				long temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(m.getPrice().getSellForPersonalPrice(),
-						sellOrderDetail.getAddMore(), medicineDto.getAmount());
+          sellOrderDetail.setPriceSell(m.getPrice().getSellForFarmPrice());
+        } else {
+          long temp = sellOrder.getTotal()
+              + this.calculateTotalOfMedicine(
+              sellOrderDetail.getRealSellPrice(), medicineDto.getAmount());
 
-				sellOrder.setTotal(temp);
-				sellOrderDetail.setPriceSell(m.getPrice().getSellForPersonalPrice());
-			}
+          sellOrder.setTotal(temp);
+          sellOrderDetail.setPriceSell(m.getPrice().getSellForPersonalPrice());
+        }
+      }
+      // But need to test => show i put two case. Then need to remove
+      else {
+        long temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(
+            sellOrderDetail.getRealSellPrice(), medicineDto.getAmount());
 
-		}
-		if (totalFromClient != sellOrder.getTotal()) {
-			logger.warn("Total from client different from server: Client: " + totalFromClient + " Server: "
-					+ sellOrder.getTotal());
-		}
-		sellOrderRepository.save(sellOrder);
-		// sellOrder.setId(newOrder.getId());
-		sellOrderDetailRepository.saveAll(listSellOrderDetail);
+        sellOrder.setTotal(temp);
+        sellOrderDetail.setPriceSell(m.getPrice().getSellForPersonalPrice());
+      }
 
-		sellOrderDto = sellOrderMapper.toDto(sellOrder);
+    }
+    if (totalFromClient != sellOrder.getTotal()) {
+      logger
+          .warn("Total from client different from server: Client: " + totalFromClient + " Server: "
+              + sellOrder.getTotal());
+    }
+    sellOrderRepository.save(sellOrder);
+    // sellOrder.setId(newOrder.getId());
+    sellOrderDetailRepository.saveAll(listSellOrderDetail);
 
-		return sellOrderDto;
-	}
+    sellOrderDto = sellOrderMapper.toDto(sellOrder);
 
-	private Long calculateTotalOfMedicine(Long price, Long addMore, Integer amount) {
-		return (price + addMore) * amount;
-	}
+    return sellOrderDto;
+  }
 
-	/**
-	 * Lấy ra danh sách các order đã bán cho một khách hàng nào đó, sắp xếp theo
-	 * thời gian giảm dần.
-	 * 
-	 * @param cus
-	 * @return
-	 */
-	public List<SellOrder> getListSellOrderByCustomerDescTime(Customer cus) {
-		if (cus == null) {
-			return null;
-		}
-		List<SellOrder> listOrder = null;
-		listOrder = sellOrderRepository.findByCustomerOrderByTimeDesc(cus);
-		return listOrder;
-	}
+  private Long calculateTotalOfMedicine(Long realSellPrice, Integer amount) {
+    return realSellPrice * amount;
+  }
 
-	public List<SellOrderDetail> getListSellOrderDetailByListSellOrder(List<SellOrder> list) {
-		List<SellOrderDetail> listResult = null;
+  /**
+   * Lấy ra danh sách các order đã bán cho một khách hàng nào đó, sắp xếp theo thời gian giảm dần.
+   *
+   * @param cus
+   * @return
+   */
+  public List<SellOrder> getListSellOrderByCustomerDescTime(Customer cus) {
+    if (cus == null) {
+      return null;
+    }
+    List<SellOrder> listOrder = null;
+    listOrder = sellOrderRepository.findByCustomerOrderByTimeDesc(cus);
+    return listOrder;
+  }
 
-		listResult = sellOrderDetailRepository.findBySellorderInOrderByTimeDesc(list);
+  public List<SellOrderDetail> getListSellOrderDetailByListSellOrder(List<SellOrder> list) {
+    List<SellOrderDetail> listResult = null;
 
-		return listResult;
-	}
+    listResult = sellOrderDetailRepository.findBySellorderInOrderByTimeDesc(list);
 
-	/**
-	 * get history sell.
-	 * 
-	 * @param fromDate DateTimeFormatter.ISO_INSTANT
-	 * @param toDate   DateTimeFormatter.ISO_INSTANT
-	 * @return
-	 */
-	public List<SellOrderDto> getHistorySell(String fromDate, String toDate) {
+    return listResult;
+  }
 
-		Instant from = DateUtils.getInstantDateQuery(fromDate);
-		Instant to = DateUtils.getInstantDateQuery(toDate);
+  /**
+   * get history sell.
+   *
+   * @param fromDate DateTimeFormatter.ISO_INSTANT
+   * @param toDate   DateTimeFormatter.ISO_INSTANT
+   * @return
+   */
+  public List<SellOrderDto> getHistorySell(String fromDate, String toDate) {
 
-		List<SellOrder> listSellOrder = sellOrderRepository.findByTimeBetween(from, to);
-		List<SellOrderDto> listSellOrderDto = sellOrderMapper.toListDto(listSellOrder);
-		return listSellOrderDto;
-	}
+    Instant from = DateUtils.getInstantDateQuery(fromDate);
+    Instant to = DateUtils.getInstantDateQuery(toDate);
 
-	/**
-	 * getHistorySell. if staffName is null => find by all staff, (Only for admin
-	 * user)
-	 * 
-	 * @param staffName
-	 * @param fromDate
-	 * @param toDate
-	 * @return
-	 */
-	public List<SellOrderDto> getHistorySell(String staffName, String fromDate, String toDate) {
-		if (StringUtils.isEmpty(staffName)) {
-			return this.getHistorySell(fromDate, toDate);
-		}
-		// When staffName != null or != empty : find a Sell history of specific staff
-		Instant from = DateUtils.getInstantDateQuery(fromDate);
-		Instant to = DateUtils.getInstantDateQuery(toDate);
+    List<SellOrder> listSellOrder = sellOrderRepository.findByTimeBetween(from, to);
+    List<SellOrderDto> listSellOrderDto = sellOrderMapper.toListDto(listSellOrder);
+    return listSellOrderDto;
+  }
 
-		List<SellOrder> listSellOrder = sellOrderRepository.findBySellerAndTimeBetween(staffName, from, to);
-		List<SellOrderDto> listSellOrderDto = sellOrderMapper.toListDto(listSellOrder);
-		return listSellOrderDto;
-	}
+  /**
+   * getHistorySell. if staffName is null => find by all staff, (Only for admin user)
+   *
+   * @param staffName
+   * @param fromDate
+   * @param toDate
+   * @return
+   */
+  public List<SellOrderDto> getHistorySell(String staffName, String fromDate, String toDate) {
+    if (StringUtils.isEmpty(staffName)) {
+      return this.getHistorySell(fromDate, toDate);
+    }
+    // When staffName != null or != empty : find a Sell history of specific staff
+    Instant from = DateUtils.getInstantDateQuery(fromDate);
+    Instant to = DateUtils.getInstantDateQuery(toDate);
 
-	/**
-	 * getHistorySell in to day. if staffName is null => find by all staff, (Only
-	 * for admin user)
-	 * 
-	 * @param staffName
-	 * @return
-	 */
-	public List<SellOrderDto> getHistorySell(String staffName) {
-		Instant from = DateUtils.getTodayInstant(Boolean.TRUE);
-		Instant to = DateUtils.getTodayInstant(Boolean.FALSE);
-		List<SellOrder> listSellOrder = null;
-		if (StringUtils.isEmpty(staffName)) {
-			listSellOrder = sellOrderRepository.findByTimeBetween(from, to);
-		} else {
-			listSellOrder = sellOrderRepository.findBySellerAndTimeBetween(staffName, from, to);
-		}
+    List<SellOrder> listSellOrder = sellOrderRepository
+        .findBySellerAndTimeBetween(staffName, from, to);
+    List<SellOrderDto> listSellOrderDto = sellOrderMapper.toListDto(listSellOrder);
+    return listSellOrderDto;
+  }
 
-		List<SellOrderDto> listSellOrderDto = sellOrderMapper.toListDto(listSellOrder);
-		for (SellOrderDto sodto : listSellOrderDto) {
-			List<InvoiceDto> list = this.getListSellOrderDetailBySellOrder(sodto.getId());
-			sodto.setListInvoice(list);
-		}
-		return listSellOrderDto;
-	}
+  /**
+   * getHistorySell in to day. if staffName is null => find by all staff, (Only for admin user)
+   *
+   * @param staffName
+   * @return
+   */
+  public List<SellOrderDto> getHistorySell(String staffName) {
+    Instant from = DateUtils.getTodayInstant(Boolean.TRUE);
+    Instant to = DateUtils.getTodayInstant(Boolean.FALSE);
+    List<SellOrder> listSellOrder = null;
+    if (StringUtils.isEmpty(staffName)) {
+      listSellOrder = sellOrderRepository.findByTimeBetween(from, to);
+    } else {
+      listSellOrder = sellOrderRepository.findBySellerAndTimeBetween(staffName, from, to);
+    }
 
-	/**
-	 * Lấy ra hóa đơn bán hàng chi tiết các loại thuốc, theo Mã hóa đơn. (Invoice)
-	 * 
-	 * @param sellOrderId
-	 * @return
-	 */
-	public SellOrderDto getHistorySell(Integer sellOrderId) {
-		Optional<SellOrder> order = sellOrderRepository.findById(sellOrderId);
-		SellOrderDto dto = null;
-		if (order.isPresent()) {
-			SellOrder entity = order.get();
-			dto = sellOrderMapper.toDto(entity);
-			List<InvoiceDto> invoices = this.getListSellOrderDetailBySellOrder(entity.getId());
-			dto.setListInvoice(invoices);
-		}
-		return dto;
-	}
+    List<SellOrderDto> listSellOrderDto = sellOrderMapper.toListDto(listSellOrder);
+    for (SellOrderDto sodto : listSellOrderDto) {
+      List<InvoiceDto> list = this.getListSellOrderDetailBySellOrder(sodto.getId());
+      sodto.setListInvoice(list);
+    }
+    return listSellOrderDto;
+  }
 
-	/**
-	 * Lấy ra danh sách các thuốc theo mã hóa đơn.
-	 * 
-	 * @param so
-	 * @return
-	 */
-	private List<InvoiceDto> getListSellOrderDetailBySellOrder(int so) {
+  /**
+   * Lấy ra hóa đơn bán hàng chi tiết các loại thuốc, theo Mã hóa đơn. (Invoice)
+   *
+   * @param sellOrderId
+   * @return
+   */
+  public SellOrderDto getHistorySell(Integer sellOrderId) {
+    Optional<SellOrder> order = sellOrderRepository.findById(sellOrderId);
+    SellOrderDto dto = null;
+    if (order.isPresent()) {
+      SellOrder entity = order.get();
+      dto = sellOrderMapper.toDto(entity);
+      List<InvoiceDto> invoices = this.getListSellOrderDetailBySellOrder(entity.getId());
+      dto.setListInvoice(invoices);
+    }
+    return dto;
+  }
 
-		return sellOrderDetailRepositoryCustom.getInvoiceDto(so);
-	}
+  /**
+   * Lấy ra danh sách các thuốc theo mã hóa đơn.
+   *
+   * @param so
+   * @return
+   */
+  private List<InvoiceDto> getListSellOrderDetailBySellOrder(int so) {
 
-	/**
-	 * Lấy ra chi tiết các hóa đơn, có search theo parameter truyền vào
-	 * 
-	 * @param parameters
-	 * @param fromDate
-	 * @param toDate
-	 * @throws NotSupportAnyMoreException 
-	 */
-	public List<SellOrderDto> getDetailHistorySell(String parameters, String fromDate, String toDate) throws NotSupportAnyMoreException {
-		if(!StringUtils.isEmpty(parameters)) {
-			throw new NotSupportAnyMoreException("Chi tiết bán hàng có tham số chưa được hỗ trợ.");
-		}
-		
-		List<SellOrderDto> listResult = null;
-		Instant from = DateUtils.getInstantDateQuery(fromDate);
-		Instant to = DateUtils.getInstantDateQuery(toDate);
-		List<SellOrder> listSellOrder = sellOrderRepository.findByTimeBetween(from, to);
-		List<SellOrderDetail> detailList = this.getListSellOrderDetailByListSellOrder(listSellOrder);
-		
-		listResult = sellOrderMapper.toListDto(listSellOrder);
-		for(SellOrderDetail dto :detailList) {
-			
-		}
-		return listResult;
-	}
+    return sellOrderDetailRepositoryCustom.getInvoiceDto(so);
+  }
+
+  /**
+   * Lấy ra chi tiết các hóa đơn, có search theo parameter truyền vào
+   *
+   * @param parameters
+   * @param fromDate
+   * @param toDate
+   * @throws NotSupportAnyMoreException
+   */
+  public List<SellOrderDto> getDetailHistorySell(String parameters, String fromDate, String toDate)
+      throws NotSupportAnyMoreException {
+    if (!StringUtils.isEmpty(parameters)) {
+      throw new NotSupportAnyMoreException("Chi tiết bán hàng có tham số chưa được hỗ trợ.");
+    }
+
+    List<SellOrderDto> listResult = null;
+    Instant from = DateUtils.getInstantDateQuery(fromDate);
+    Instant to = DateUtils.getInstantDateQuery(toDate);
+    List<SellOrder> listSellOrder = sellOrderRepository.findByTimeBetween(from, to);
+    List<SellOrderDetail> detailList = this.getListSellOrderDetailByListSellOrder(listSellOrder);
+
+    listResult = sellOrderMapper.toListDto(listSellOrder);
+    for (SellOrderDetail dto : detailList) {
+
+    }
+    return listResult;
+  }
 }

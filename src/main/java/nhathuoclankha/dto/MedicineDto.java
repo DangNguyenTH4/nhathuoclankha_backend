@@ -21,7 +21,7 @@ public class MedicineDto {
 	//dd/mm/yyyy
 	private String expiryDate;
 
-  private Long addMore;
+	private Long realSellPrice;
   private Long total;
 
   @Override

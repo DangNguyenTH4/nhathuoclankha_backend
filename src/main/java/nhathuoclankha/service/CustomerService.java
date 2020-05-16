@@ -76,7 +76,7 @@ public class CustomerService {
           if (dto != null) {
 
             if (!listResult.contains(dto)) {
-              dto.setAddMore(detail.getAddMore());
+              dto.setRealSellPrice(detail.getRealSellPrice());
               listResult.add(dto);
             }
           }
@@ -132,7 +132,7 @@ public class CustomerService {
           if (dto != null) {
 
             if (!listResult.contains(dto)) {
-              dto.setAddMore(detail.getAddMore());
+              dto.setRealSellPrice(detail.getRealSellPrice());
               listResult.add(dto);
             }
           }
