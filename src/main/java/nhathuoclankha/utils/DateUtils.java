@@ -11,15 +11,14 @@ import org.springframework.web.client.HttpClientErrorException.BadRequest;
 import nhathuoclankha.exceptions.BadRequestException;
 
 public class DateUtils {
-	
-  /**
-   * 
-   * @param year
-   * @param month
-   * @param day
-   * @param isStartDate
-   * @return
-   */
+
+	/**
+	 * @param year
+	 * @param month
+	 * @param day
+	 * @param isStartDate
+	 * @return
+	 */
 	public static String getDateQuery(Integer year, Integer month, Integer day, Boolean isStartDate) {
 		LocalDate today = LocalDate.now();
 		if (year == null || year == 0 || year < 2019) {

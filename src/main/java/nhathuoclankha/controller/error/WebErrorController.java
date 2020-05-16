@@ -1,16 +1,14 @@
 package nhathuoclankha.controller.error;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import javassist.expr.NewArray;
-import nhathuoclankha.auth.dto.JwtRequest;
 import nhathuoclankha.auth.dto.JwtResponse;
+import nhathuoclankha.exceptions.AuthorizationException;
 import nhathuoclankha.exceptions.BadRequestException;
 import nhathuoclankha.exceptions.NotSupportAnyMoreException;
 import nhathuoclankha.exceptions.OverExistingQuantityEception;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class WebErrorController {
@@ -29,8 +27,8 @@ public class WebErrorController {
     return new ResponseEntity<String>(bre.getMessage(), HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(AuthenticationException.class)
-  public ResponseEntity<JwtResponse> authicatationFail(AuthenticationException auex) {
+  @ExceptionHandler(AuthorizationException.class)
+  public ResponseEntity<JwtResponse> authicatationFail(AuthorizationException auex) {
     System.out.println("Authenticate exception");
     return new ResponseEntity<JwtResponse>(new JwtResponse(), HttpStatus.UNAUTHORIZED);
   }

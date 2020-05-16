@@ -144,8 +144,6 @@ public String getNote() {
 public void setNote(String note) {
 	this.note = note;
 }
-  
-  
 
 
 }

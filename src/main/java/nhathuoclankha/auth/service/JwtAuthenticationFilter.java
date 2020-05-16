@@ -54,6 +54,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     } else {
       logger.warn("JWT Token does not begin with Bearer String");
     }
+    //TODO chua xu li cac truong hop vua catch exception o tren kia.
+
     //remove anonymouseUser
     Authentication userTemp = SecurityContextHolder.getContext().getAuthentication();
     
