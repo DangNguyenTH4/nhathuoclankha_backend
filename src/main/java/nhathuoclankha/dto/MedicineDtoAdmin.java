@@ -12,14 +12,15 @@ public class MedicineDtoAdmin {
 	private String code;
 	private String companyName;
 	private String medicineName;
-	private Long priceSell;
-	private Long priceBought;
+	private Double priceSell;
+	private Double priceBought;
 	private int quantityExsiting;
 	private String unit;
 	private Instant dateCreate;
 
 	private Company company;
 	private Price price;
+	private String group;
 
 
 	

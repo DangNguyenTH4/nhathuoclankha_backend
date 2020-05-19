@@ -15,6 +15,7 @@ public class ImportOrderMapper extends Mapper<ImportOrder, ImportOrderDto> {
 			entity.setId(d.getId());
 			entity.setImportDate(d.getImportDate());
 			entity.setStaffName(d.getStaffName());
+			entity.setMaHoaDonReal(d.getMaHoaDonReal());
 		}
 		return entity;
 	}
@@ -27,6 +28,7 @@ public class ImportOrderMapper extends Mapper<ImportOrder, ImportOrderDto> {
 			dto.setId(e.getId());
 			dto.setImportDate(e.getImportDate());
 			dto.setStaffName(e.getStaffName());
+			dto.setMaHoaDonReal(e.getMaHoaDonReal());
 		}
 		return dto;
 	}

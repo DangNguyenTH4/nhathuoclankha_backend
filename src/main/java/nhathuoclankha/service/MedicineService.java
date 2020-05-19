@@ -204,7 +204,7 @@ public class MedicineService {
     //Only lankha user can see bought price
     if (!"lankha".equalsIgnoreCase(user.getUsername())) {
       listDto.stream().forEach(a -> {
-        a.setPriceBought(-1L);
+        a.setPriceBought(-1.0);
       });
     }
     return listDto;
@@ -218,6 +218,8 @@ public class MedicineService {
     price.setSellForFarmPrice(medicineDto.getPriceForFarm());
     price.setSellForCompanyPrice(medicineDto.getPriceForCompany());
     price.setDateApply(Instant.now());
+    price.setImportDiscount(medicineDto.getDiscount());
+    price.setBoughtPriceAfterDiscount(medicineDto.getBoughtPriceAfterDiscount());
     return price;
   }
 }

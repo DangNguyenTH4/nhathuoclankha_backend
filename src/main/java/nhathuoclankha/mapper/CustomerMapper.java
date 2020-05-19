@@ -17,6 +17,7 @@ public class CustomerMapper extends Mapper<Customer, CustomerDto> {
 			dto.setPhoneNumber(e.getPhoneNumber());
 			dto.setType(e.getType());
 			dto.setTraiDungThuoc(e.getTraiDungThuoc());
+			dto.setTypeOfCustomer(e.getTypeOfCustomer());
 		}
 		return dto;
 	}
@@ -30,6 +31,7 @@ public class CustomerMapper extends Mapper<Customer, CustomerDto> {
 			e.setPhoneNumber(d.getPhoneNumber());
 			e.setType(d.getType());
 			e.setTraiDungThuoc(d.getTraiDungThuoc());
+			e.setTypeOfCustomer(e.getTypeOfCustomer());
 		}
 		return e;
 	}

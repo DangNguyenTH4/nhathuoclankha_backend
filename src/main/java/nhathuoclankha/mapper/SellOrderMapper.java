@@ -21,6 +21,9 @@ public class SellOrderMapper extends Mapper<SellOrder, SellOrderDto> {
 			e.setTime(d.getTime());
 			e.setTotal(d.getTotal());
 			e.setSeller(d.getSeller());
+			e.setNote(d.getNote());
+			e.setNumberOfSell(d.getNumberOfSell());
+			e.setTimeInputAnimal(d.getTimeInputAnimal());
 		}
 		return e;
 	}
@@ -35,6 +38,9 @@ public class SellOrderMapper extends Mapper<SellOrder, SellOrderDto> {
 			d.setTime(e.getTime());
 			d.setTotal(e.getTotal());
 			d.setSeller(e.getSeller());
+			d.setNote(e.getNote());
+			d.setNumberOfSell(e.getNumberOfSell());
+			d.setTimeInputAnimal(e.getTimeInputAnimal());
 		}
 		return d;
 	}
