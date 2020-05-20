@@ -42,6 +42,9 @@ public class SellMedicineService {
   private SellOrderMapper sellOrderMapper;
   @Autowired
   private SellOrderDetailRepositoryCustom sellOrderDetailRepositoryCustom;
+  @Autowired
+  private CustomerService customerService;
+
 
   private Logger logger = LoggerFactory.getLogger(SellMedicineService.class);
 
@@ -62,34 +65,9 @@ public class SellMedicineService {
     Long totalFromClient = sellOrder.getTotal();
     sellOrder.setTotal(0L);
 
-    if (sellOrder.getCustomer() != null) {
-      if (sellOrder.getCustomer().getId() != null) {
-        Optional<Customer> getCustomerById = customerRepository
-            .findById(sellOrder.getCustomer().getId());
-      }
-      // Find customer by phone. 0
-      List<Customer> customers = customerRepository
-          .findByPhoneNumber(sellOrder.getCustomer().getPhoneNumber());
-      if (customers != null && customers.size() != 0) {
-        // Get the lastest customer with the phone.
-        sellOrder.setCustomer(customers.get(customers.size() - 1));
-      } else {
-        // if no name, or no phone or ...
-        if (StringUtils.isEmpty(sellOrder.getCustomer().getName())
-            || StringUtils.isEmpty(sellOrder.getCustomer().getPhoneNumber())
-          // .... add more later TOTO : for what???
-        ) {
-          if (StringUtils.isEmpty(sellOrder.getCustomer().getName())) {
-            sellOrder.getCustomer().setName("Khách lẻ");
-            sellOrder.getCustomer().setId(null);
 
-          }
-        }
-        Customer cus = customerRepository.save(sellOrder.getCustomer());
-        sellOrder.setCustomer(cus);
-      }
+    customerService.createOrUpdateCustomer(sellOrder.getCustomer());
 
-    }
     // Save import order
     sellOrder.setTime(Instant.now());
     sellOrder = sellOrderRepository.save(sellOrder);

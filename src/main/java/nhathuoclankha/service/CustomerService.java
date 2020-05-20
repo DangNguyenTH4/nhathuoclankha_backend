@@ -3,6 +3,7 @@ package nhathuoclankha.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -215,6 +216,53 @@ public class CustomerService {
     }
     Customer cus = list.get(list.size() - 1);
     return customerMapper.toDto(cus);
+  }
+
+  /**
+   * (1).Tìm theo id nếu tồn tại trả về customer đó, không làm gì cả.
+   * (2)Nếu tìm theo id không có, tìm theo số điên thoại, nếu có thì update thông tin của customer đó,
+   * Nêu không tìm thấy theo 2 điều kiện trên thì tạo customer mới, Trường Name và trại dùng thuốc
+   * để là khách mua lẻ, nếu trống
+   * @param customer
+   * @return
+   */
+  public Customer createOrUpdateCustomer(Customer customer){
+    if (customer != null) {
+      if (customer.getId() != null) {
+        Optional<Customer> getCustomerById = customerRepository
+            .findById(customer.getId());
+        //(1)Tìm theo id nếu tồn tại trả về customer đó, không làm gì cả.
+        if(getCustomerById.isPresent()){
+          return getCustomerById.get();
+        }
+      }
+      //(2)Nếu tìm theo id không có, tìm theo số điên thoại, nếu có thì update thông tin của customer đó,
+      List<Customer> customers = customerRepository
+          .findByPhoneNumber(customer.getPhoneNumber());
+      if (customers != null && customers.size() != 0) {
+        // Get the lastest customer with the phone.
+        Customer oldCustomer = customers.get(customers.size() - 1);
+        customer.setId(oldCustomer.getId());
+        customerRepository.save(customer);
+      } else {
+        // if no name, or no phone or ...
+        if (StringUtils.isEmpty(customer.getName())
+            && StringUtils.isEmpty(customer.getPhoneNumber())
+          // .... add more later TOTO : for what???
+        ) {
+          if (StringUtils.isEmpty(customer.getName())) {
+            customer.setName("Khách lẻ");
+          }
+          if(StringUtils.isEmpty(customer.getTraiDungThuoc())){
+            customer.setTraiDungThuoc("Khách lẻ");
+          }
+          customer.setId(null);
+        }
+        customer = customerRepository.save(customer);
+      }
+
+    }
+    return customer;
   }
 
 

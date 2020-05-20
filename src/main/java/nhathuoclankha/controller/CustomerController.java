@@ -69,11 +69,11 @@ public class CustomerController {
     if (!StringUtils.isEmpty(phone)) {
       if (phone.startsWith(PHONE)) {
         log.info(">>>getCustomerBy - start with:  " + PHONE);
-        phone = phone.substring(5);
+        phone = phone.substring(5).trim();
         cus = customerService.getLastestCustomerByPhone(phone);
       } else if (phone.startsWith(NAME_)) {
         log.info(">>>getCustomerBy - start with:  " + NAME_);
-        phone = phone.substring(5);
+        phone = phone.substring(5).trim();
         cus = customerService.getLastestCustomerByName(phone);
       }
     }

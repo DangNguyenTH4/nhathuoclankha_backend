@@ -34,14 +34,9 @@ public class SellOrderDetail {
 	@MapsId("medicine_id")
 	@JoinColumn(name="medicine_id")
 	private Medicine medicine;
-	
-	
-	
-
 	public SellOrderDetail(){
 		this.sellOrderDetailKey = new SellOrderDetailKey();
 	}
-
 	public void setMedicine(Medicine medicine) {
 		this.sellOrderDetailKey.setMedicineId(medicine.getId());
 		this.medicine = medicine;
