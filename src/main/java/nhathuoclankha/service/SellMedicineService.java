@@ -62,8 +62,8 @@ public class SellMedicineService {
     }
     SellOrder sellOrder = sellOrderMapper.toEntity(sellOrderDto);
     // Set total to 0
-    Long totalFromClient = sellOrder.getTotal();
-    sellOrder.setTotal(0L);
+    double totalFromClient = sellOrder.getTotal();
+    sellOrder.setTotal(0.0);
 
 
     customerService.createOrUpdateCustomer(sellOrder.getCustomer());
@@ -71,7 +71,6 @@ public class SellMedicineService {
     // Save import order
     sellOrder.setTime(Instant.now());
     sellOrder = sellOrderRepository.save(sellOrder);
-    System.out.println(sellOrder.getId());
     // Save Import Order Detail
     List<SellOrderDetail> listSellOrderDetail = new ArrayList<SellOrderDetail>();
 
@@ -90,20 +89,20 @@ public class SellMedicineService {
 
       if (sellOrder.getCustomer() != null) {
         if ("company".equals(sellOrder.getCustomer().getType())) {
-          long temp = sellOrder.getTotal()
+          double temp = sellOrder.getTotal()
               + this.calculateTotalOfMedicine(sellOrderDetail.getRealSellPrice(),
               medicineDto.getAmount());
           sellOrder.setTotal(temp);
           sellOrderDetail.setPriceSell(m.getPrice().getSellForCompanyPrice());
 
         } else if ("farm".equals(sellOrder.getCustomer().getType())) {
-          long temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(
+          double temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(
               sellOrderDetail.getRealSellPrice(), medicineDto.getAmount());
           sellOrder.setTotal(temp);
 
           sellOrderDetail.setPriceSell(m.getPrice().getSellForFarmPrice());
         } else {
-          long temp = sellOrder.getTotal()
+          double temp = sellOrder.getTotal()
               + this.calculateTotalOfMedicine(
               sellOrderDetail.getRealSellPrice(), medicineDto.getAmount());
 
@@ -113,7 +112,7 @@ public class SellMedicineService {
       }
       // But need to test => show i put two case. Then need to remove
       else {
-        long temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(
+        double temp = sellOrder.getTotal() + this.calculateTotalOfMedicine(
             sellOrderDetail.getRealSellPrice(), medicineDto.getAmount());
 
         sellOrder.setTotal(temp);
@@ -135,7 +134,7 @@ public class SellMedicineService {
     return sellOrderDto;
   }
 
-  private Long calculateTotalOfMedicine(Long realSellPrice, Integer amount) {
+  private Double calculateTotalOfMedicine(Double realSellPrice, Integer amount) {
     return realSellPrice * amount;
   }
 

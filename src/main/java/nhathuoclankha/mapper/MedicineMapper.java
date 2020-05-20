@@ -25,7 +25,8 @@ public class MedicineMapper extends Mapper<Medicine, MedicineDto> {
 			dto.setPriceForCompany(e.getPrice().getSellForCompanyPrice());
 			dto.setPriceForFarm(e.getPrice().getSellForFarmPrice());
 			dto.setPriceForPersonal(e.getPrice().getSellForPersonalPrice());
-			dto.setTotal(0L);
+			dto.setTotal(0.0);
+			dto.setGroup(e.getGroup());
 		}
 		return dto;
 	}
@@ -38,6 +39,7 @@ public class MedicineMapper extends Mapper<Medicine, MedicineDto> {
 			e.setId(d.getId());
 //			e.setCompany(d.);
 //			e.setId();
+			e.setGroup(d.getGroup());
 			e.setMedicineName(d.getName());
 //			e.setPrice(d.getP);
 			return e;
@@ -54,6 +56,7 @@ public class MedicineMapper extends Mapper<Medicine, MedicineDto> {
 			e.setPrice(admin.getPrice());
 			e.setQuantityExsiting(admin.getQuantityExsiting());
 			e.setUnit(admin.getUnit());
+			e.setGroup(admin.getGroup());
 			return e;
 		}
 		return null;
@@ -68,6 +71,7 @@ public class MedicineMapper extends Mapper<Medicine, MedicineDto> {
 //			ad.setPrice(e.getPrice());
 			ad.setQuantityExsiting(e.getQuantityExsiting());
 			ad.setUnit(e.getUnit());
+			ad.setGroup(e.getGroup());
 			return ad;
 		}
 		return null;

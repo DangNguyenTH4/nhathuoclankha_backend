@@ -133,7 +133,7 @@ public class ImportOrderService {
       for (ImportOrderDetail iod : importOrderDetailList) {
         MedicineDto medicineDto = medicineMapper.toDto(iod.getMedicine());
         medicineDto.setAmount(iod.getAmount());
-        medicineDto.setRealSellPrice(0L);
+        medicineDto.setRealSellPrice(0.0);
         listMedicineDto.add(medicineDto);
       }
       dto.setListMedicineImport(listMedicineDto);

@@ -12,12 +12,23 @@ public class SellOrderDto {
   private int id;
   private CustomerDto customer;
   private Instant time;
-  private long total;
+  private Double total;
   private Set<MedicineDto> listMedicines;
   private String seller;
 
   // When see history -> return invoice dto for client
   private List<InvoiceDto> listInvoice;
+
+  /**
+   * Lứa gà
+   */
+  private String numberOfSell;
+  /**
+   * Ngày  vào gà
+   */
+  private String timeInputAnimal;
+  private String note;
+
 
 
 }

@@ -26,8 +26,8 @@ public class SellOrderDetail {
 	private int amount;
 	private Integer priceId;
 	//Only Đơn giá, chưa cộng thêm addMore
-	private Long priceSell;
-	private Long realSellPrice;
+	private Double priceSell;
+	private Double realSellPrice;
 
 	private Instant time;
 	@ManyToOne

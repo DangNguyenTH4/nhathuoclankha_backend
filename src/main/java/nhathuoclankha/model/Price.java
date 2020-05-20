@@ -12,10 +12,14 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.lang.Nullable;
 
 @Entity
 @Table(name = "price")
+@Getter
+@Setter
 public class Price {
 
   @Id
@@ -29,79 +33,12 @@ public class Price {
 
   private Instant dateApply;
 
-  private Long boughtPrice;
-  private Long sellForCompanyPrice;
-  private Long sellForFarmPrice;
-  private Long sellForPersonalPrice;
+  private Double boughtPrice;
+  private Double sellForCompanyPrice;
+  private Double sellForFarmPrice;
+  private Double sellForPersonalPrice;
 
-
-  public Integer getId() {
-    return id;
-  }
-
-
-  public Long getBoughtPrice() {
-    return boughtPrice;
-  }
-
-
-  public void setBoughtPrice(Long boughtPrice) {
-    this.boughtPrice = boughtPrice;
-  }
-  public Integer getMedicineId() {
-    return medicineId;
-  }
-
-
-  public void setMedicineId(Integer medicineId) {
-    this.medicineId = medicineId;
-  }
-
-  public Instant getDateApply() {
-    return dateApply;
-  }
-
-
-  public void setDateApply(Instant dateApply) {
-    this.dateApply = dateApply;
-  }
-
-
-  public Long getSellForCompanyPrice() {
-    return sellForCompanyPrice;
-  }
-
-
-  public void setSellForCompanyPrice(Long sellForCompanyPrice) {
-    this.sellForCompanyPrice = sellForCompanyPrice;
-  }
-
-
-  public Long getSellForFarmPrice() {
-    return sellForFarmPrice;
-  }
-
-
-  public void setSellForFarmPrice(Long sellForFarmPrice) {
-    this.sellForFarmPrice = sellForFarmPrice;
-  }
-
-
-  public Long getSellForPersonalPrice() {
-    return sellForPersonalPrice;
-  }
-
-
-  public void setSellForPersonalPrice(Long sellForPersonalPrice) {
-    this.sellForPersonalPrice = sellForPersonalPrice;
-  }
-
-
-  public void setId(Integer idPrice) {
-    this.id = idPrice;
-  }
-
-//
-
+  private Integer importDiscount;
+  private Double boughtPriceAfterDiscount;
 
 }

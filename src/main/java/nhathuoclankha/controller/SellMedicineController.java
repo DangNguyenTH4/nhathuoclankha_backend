@@ -1,7 +1,10 @@
 package nhathuoclankha.controller;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import nhathuoclankha.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
@@ -34,29 +37,7 @@ public class SellMedicineController {
   @Autowired
   private PriceRepository priceRepository;
 
-  @GetMapping("add-medicine")
-  public Medicine addMedicine(@RequestParam(required = false) String code,
-      @RequestParam(required = false) String name, @RequestParam(required = false) Long price)
-      throws NotSupportAnyMoreException {
-    Medicine medicine = new Medicine();
-    medicine.setMedicineName(name);
-    medicine.setQuantityExsiting(20);
-    medicine.setUnit("goi");
-    medicine.setCode(code);
-    Price price1 = new Price();
-    price1.setDateApply(Instant.now());
-    price1.setBoughtPrice(price);
-    price1.setSellForCompanyPrice(price + 1000L);
-    price1.setSellForFarmPrice(price + 2000L);
-    price1.setSellForPersonalPrice(price + 3000L);
-    priceRepository.save(price1);
-    medicine.setPrice(price1);
-    medicineRepository.saveAndFlush(medicine);
-    price1.setMedicineId(medicine.getId());
-    priceRepository.save(price1);
-    throw new NotSupportAnyMoreException("Không hỗ trợ nữa");
 
-  }
 
   /***
    *
@@ -97,6 +78,12 @@ public class SellMedicineController {
         .getHistorySell(user.getUsername(), fromDate, toDate);
     return result;
 
+  }
+  @RequestMapping(value = "/gen-money",method = RequestMethod.GET)
+  public List<String> genMoney(@RequestParam Double  money){
+    List<String> r = new ArrayList<>();
+    r.add(CommonUtils.genSoTienBangChu(money));
+    return r;
   }
 
 }

@@ -24,10 +24,10 @@ public class PriceService {
 
     //Đổi requirement, không muốn nhập giá lúc tạo thuốc mới nữa
     //Nên set temp như này, tí nữa qua đoạn validate sẽ xóa đi về 0 hết
-    price.setBoughtPrice(1L);
-    price.setSellForCompanyPrice(2L);
-    price.setSellForFarmPrice(2L);
-    price.setSellForPersonalPrice(2L);
+    price.setBoughtPrice(1.0);
+    price.setSellForCompanyPrice(2.0);
+    price.setSellForFarmPrice(2.0);
+    price.setSellForPersonalPrice(2.0);
 
     if (price == null) {
       throw new CreateNewException("Không có thông tin của giá!");
@@ -50,10 +50,10 @@ public class PriceService {
     price.setDateApply(Instant.now());
 
     //Set mặc đình về 0 hết khi mà tạo thuốc mới.
-    price.setBoughtPrice(0L);
-    price.setSellForCompanyPrice(0L);
-    price.setSellForFarmPrice(0L);
-    price.setSellForPersonalPrice(0L);
+    price.setBoughtPrice(0.0);
+    price.setSellForCompanyPrice(0.0);
+    price.setSellForFarmPrice(0.0);
+    price.setSellForPersonalPrice(0.0);
     price = priceRepository.save(price);
     return price;
   }

@@ -43,8 +43,6 @@ public class ImportOrderDetail {
 	@MapsId("medicine_id")
 	@JoinColumn(name = "medicine_id")
 	private Medicine medicine;
-
-	
 	public ImportOrderDetail() {
 		importOrderDetailKey = new ImportOrderDetaiKey();
 	}

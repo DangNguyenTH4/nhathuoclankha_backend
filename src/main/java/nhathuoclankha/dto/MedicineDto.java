@@ -13,16 +13,20 @@ public class MedicineDto {
   private String name;
   private String unit;
 
-  private Long priceForCompany;
-  private Long priceForFarm;
-  private Long priceForPersonal;
+  private String group;
+  private Double priceForCompany;
+  private Double priceForFarm;
+  private Double priceForPersonal;
 	//Bought price for Import Order
-	private Long boughtPrice;
+	private Double boughtPrice;
 	//dd/mm/yyyy
 	private String expiryDate;
 
-	private Long realSellPrice;
-  private Long total;
+	private Double realSellPrice;
+  private Double total;
+
+  private Integer discount;
+  private Double boughtPriceAfterDiscount;
 
   @Override
   public int hashCode() {
@@ -61,6 +65,4 @@ public class MedicineDto {
     }
     return true;
   }
-
-
 }
