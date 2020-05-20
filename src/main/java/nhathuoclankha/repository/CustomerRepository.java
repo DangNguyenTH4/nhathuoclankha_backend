@@ -13,6 +13,9 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
   List<Customer> findByPhoneNumber(String phone);
 
+
+  Customer findTop1ByTraiDungThuocOrderByIdDesc(String farmName);
+
   List<Customer> findByPhoneNumberAndNameAndTraiDungThuoc(String phone, String name,
       String traiDungThuoc);
 
@@ -27,5 +30,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Integer> {
 
   @Query(value = "select distinct(name) from nhathuoc.customer where name like ?1 ;", nativeQuery = true)
   List<String> findListName(String name);
+
+  @Query(value = "select distinct(trai_dung_thuoc) from nhathuoc.customer where trai_dung_thuoc like ?1 ;", nativeQuery = true)
+  List<String> findListFarmName(String farmName);
 
 }

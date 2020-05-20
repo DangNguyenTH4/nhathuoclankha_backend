@@ -24,6 +24,7 @@ public class CustomerController {
 
   private final String PHONE = "PHONE";
   private final String NAME_ = "NAME_";
+  private final String FARM_ = "FARM_";
 
   @GetMapping("/findByPhone")
   public CustomerDto findCustomerByPhone(@RequestParam String phone) {
@@ -44,6 +45,10 @@ public class CustomerController {
   public List<String> getListName(@RequestParam String name) {
     return customerService.getListName(name);
   }
+  @GetMapping(value = "list-farm-name")
+  public List<String> getListFarmName(@RequestParam String name) {
+    return customerService.getListFarmName(name);
+  }
 
   @GetMapping(value = "get-list-bought")
   public List<MedicineDto> getListBougthBy(@RequestParam String phone) {
@@ -51,12 +56,18 @@ public class CustomerController {
     if (!StringUtils.isEmpty(phone)) {
       if (phone.startsWith(PHONE)) {
         log.info(">>> get-list-bought - startwith: "+PHONE);
-        phone = phone.substring(5);
+        phone = phone.substring(5).trim();
         result = customerService.getListBougthByPhone(phone);
       } else if (phone.startsWith(NAME_)) {
         log.info(">>> get-list-bought - startwith: "+NAME_);
-        phone = phone.substring(5);
+        phone = phone.substring(5).trim();
         result = customerService.getListBougthByName(phone);
+      }
+      else if (phone.startsWith(FARM_)) {
+        log.info(">>> get-list-bought - startwith: "+FARM_);
+        phone = phone.substring(5).trim();
+        //Client gửi lên sẽ là số điện thoại của customer, nếu không tìm thấy thì là blank.
+        result = customerService.getListBougthByFarmName(phone);
       }
 
     }
@@ -75,6 +86,11 @@ public class CustomerController {
         log.info(">>>getCustomerBy - start with:  " + NAME_);
         phone = phone.substring(5).trim();
         cus = customerService.getLastestCustomerByName(phone);
+      }
+      else if(phone.startsWith(FARM_)){
+        log.info(">>> get customer by farm name.");
+        phone = phone.substring(5).trim();
+        cus = customerService.getLastestCustomerByFarmName(phone);
       }
     }
     return cus;

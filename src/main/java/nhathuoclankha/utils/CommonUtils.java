@@ -2,6 +2,7 @@ package nhathuoclankha.utils;
 
 import io.swagger.models.auth.In;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
@@ -100,28 +101,6 @@ public class CommonUtils {
     if (baSo == null || baSo == 0) {
       return null;
     }
-    boolean isAddMuoi = false;
-//    if (baSo >= 100) {
-//      tram = numberStringMap.get((int) (baSo / 100));
-//      baSo = baSo % 100;
-//      if (baSo >= 10) {
-//        int so = (int)(baSo/10);
-//        if(so==1)
-//        chuc = numberStringMap.get((int) (baSo / 10));
-//        baSo = baSo % 10;
-//      } else {
-//        chuc = "lẻ ";
-//        isAddMuoi = true;
-//      }
-//    }else{
-//
-//    }
-//
-//    if (baSo > 0) {
-//      double ab = baSo;
-//      Integer a = (int) ab;
-//      dv = numberStringMap.get(a);
-//    }
     Integer dvNumber = null;
     Integer chucNumber = null;
     Integer tramNumber = null;
@@ -199,20 +178,10 @@ public class CommonUtils {
         sb.append(numberStringMap.get(dvNumber)) ;
       }
     }
-//    if (!StringUtils.isEmpty(tram)) {
-//      sb.append(tram).append(" trăm ");
-//    }
-//    if (!StringUtils.isEmpty(chuc)) {
-//      if (isAddMuoi) {
-//        sb.append(chuc);
-//      } else {
-//        sb.append(chuc).append(" mươi ");
-//      }
-//    }
-//    if (!StringUtils.isEmpty(dv)) {
-//      sb.append(dv);
-//    }
     return sb.toString();
+  }
+  public static boolean isCollectionEmpty(List<?> collection){
+    return collection == null || collection.size() ==0;
   }
 
 }
