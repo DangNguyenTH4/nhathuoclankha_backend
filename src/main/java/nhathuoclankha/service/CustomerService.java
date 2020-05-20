@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import java.util.Optional;
+import nhathuoclankha.utils.CommonUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -13,13 +14,13 @@ import nhathuoclankha.dto.MedicineDto;
 import nhathuoclankha.mapper.CustomerMapper;
 import nhathuoclankha.mapper.MedicineMapper;
 import nhathuoclankha.model.Customer;
-import nhathuoclankha.model.Medicine;
 import nhathuoclankha.model.SellOrder;
 import nhathuoclankha.model.SellOrderDetail;
 import nhathuoclankha.repository.CustomerRepository;
 
 @Service
 public class CustomerService {
+
   @Autowired
   private CustomerRepository customerRepository;
   @Autowired
@@ -61,7 +62,6 @@ public class CustomerService {
     // Tìm customer theo số điện thoại, có thể trùng nhau=> Lấy số điện cus lastest
     List<Customer> cus = customerRepository.findByName(name);
     if (cus != null && cus.size() != 0) {
-      listResult = new ArrayList<MedicineDto>();
       // Lấy ra danh sách các order mà số này đã mua. sắp xếp theo thời gian từ gần
       // tới xa
       List<SellOrder> listSellOrderBought =
@@ -69,23 +69,73 @@ public class CustomerService {
       // Lấy ra danh sách các detail của order sắp xếp the thời gian từ gần tới xa.
       List<SellOrderDetail> listSellOrderDetail =
           sellMedicineService.getListSellOrderDetailByListSellOrder(listSellOrderBought);
-      MedicineDto dto = null;
-      // Make List Medicine Dto
-      for (SellOrderDetail detail : listSellOrderDetail) {
-        if (detail.getTime() != null) {
-          dto = medicineMapper.toDto(detail.getMedicine());
-          if (dto != null) {
+      listResult = this.initListMedicineBoughtFromSellOrderDetail(listSellOrderDetail);
+      listResult = this.mergeListMedicineBoughtToMedicineSource(listResult);
+    } else {
+      listResult = medicineService.getGetAllOrderByMedicineName();
+    }
+    return listResult;
 
-            if (!listResult.contains(dto)) {
-              dto.setRealSellPrice(detail.getRealSellPrice());
-              listResult.add(dto);
-            }
+  }
+
+  public List<MedicineDto> getListBougthByFarmName(String farmName) {
+    List<MedicineDto> listResult = null;
+    if (StringUtils.isEmpty(farmName)) {
+      return medicineService.getGetAllOrderByMedicineName();
+    }
+    // Tìm customer theo số điện thoại, có thể trùng nhau=> Lấy số điện cus lastest
+    Customer cus = customerRepository.findTop1ByTraiDungThuocOrderByIdDesc(farmName);
+    if (cus != null ) {
+      // Lấy ra danh sách các order mà số này đã mua. sắp xếp theo thời gian từ gần
+      // tới xa
+      List<SellOrder> listSellOrderBought =
+          sellMedicineService.getListSellOrderByCustomerDescTime(cus);
+      // Lấy ra danh sách các detail của order sắp xếp the thời gian từ gần tới xa.
+      List<SellOrderDetail> listSellOrderDetail =
+          sellMedicineService.getListSellOrderDetailByListSellOrder(listSellOrderBought);
+      listResult = this.initListMedicineBoughtFromSellOrderDetail(listSellOrderDetail);
+      listResult = this.mergeListMedicineBoughtToMedicineSource(listResult);
+    } else {
+      listResult = medicineService.getGetAllOrderByMedicineName();
+    }
+    return listResult;
+
+  }
+
+  /**
+   *
+   * @param listSellOrderDetail
+   * @return
+   */
+  private List<MedicineDto> initListMedicineBoughtFromSellOrderDetail(
+      List<SellOrderDetail> listSellOrderDetail) {
+    List<MedicineDto> listResult = new ArrayList<>();
+    MedicineDto dto = null;
+    // Make List Medicine Dto
+    for (SellOrderDetail detail : listSellOrderDetail) {
+      if (detail.getTime() != null) {
+        dto = medicineMapper.toDto(detail.getMedicine());
+        if (dto != null) {
+          if (!listResult.contains(dto)) {
+            dto.setRealSellPrice(detail.getRealSellPrice());
+            listResult.add(dto);
           }
         }
-
       }
-      // Update những loại thuốc có mua vào danh sách thuốc rồi trả về cho client
-      List<MedicineDto> listMedicineDtoSource = medicineService.getGetAllOrderByMedicineName();
+    }
+    return listResult;
+  }
+
+  /**
+   * Update những loại thuốc có mua vào danh sách thuốc rồi trả về cho client.
+   *
+   * @param listResult
+   * @return
+   */
+  private List<MedicineDto> mergeListMedicineBoughtToMedicineSource(List<MedicineDto> listResult) {
+    List<MedicineDto> listMedicineDtoSource = medicineService.getGetAllOrderByMedicineName();
+    if (CommonUtils.isCollectionEmpty(listMedicineDtoSource) && CommonUtils
+        .isCollectionEmpty(listResult)) {
       for (MedicineDto dtoResult : listResult) {
         for (int i = 0; i < listMedicineDtoSource.size(); i++) {
           if (listMedicineDtoSource.get(i).equals(dtoResult)) {
@@ -93,18 +143,17 @@ public class CustomerService {
             break;
           }
         }
-
       }
-      listResult = listMedicineDtoSource;
-    }else {
-      listResult = medicineService.getGetAllOrderByMedicineName();
     }
-    return listResult;
-
+    return listMedicineDtoSource;
   }
+  /**
+   * getListBougthByFarmName
+   */
+
   /***
    * Lấy ra danh sách những thuốc đã mua, nếu mua 1 loại nhiều lần thì lấy lần gần nhất.
-   * 
+   *
    * @param phone
    * @return
    */
@@ -117,51 +166,31 @@ public class CustomerService {
     // Tìm customer theo số điện thoại, có thể trùng nhau=> Lấy số điện cus lastest
     List<Customer> cus = customerRepository.findByPhoneNumber(phone);
     if (cus != null && cus.size() != 0) {
-      listResult = new ArrayList<MedicineDto>();
-      // Lấy ra danh sách các order mà số này đã mua. sắp xếp theo thời gian từ gần
-      // tới xa
-      List<SellOrder> listSellOrderBought =
-          sellMedicineService.getListSellOrderByCustomerDescTime(cus.get(cus.size() - 1));
-      // Lấy ra danh sách các detail của order sắp xếp the thời gian từ gần tới xa.
-      List<SellOrderDetail> listSellOrderDetail =
-          sellMedicineService.getListSellOrderDetailByListSellOrder(listSellOrderBought);
-      MedicineDto dto = null;
-      // Make List Medicine Dto
-      for (SellOrderDetail detail : listSellOrderDetail) {
-        if (detail.getTime() != null) {
-          dto = medicineMapper.toDto(detail.getMedicine());
-          if (dto != null) {
-
-            if (!listResult.contains(dto)) {
-              dto.setRealSellPrice(detail.getRealSellPrice());
-              listResult.add(dto);
-            }
-          }
-        }
-
-      }
-      // Update những loại thuốc có mua vào danh sách thuốc rồi trả về cho client
-      List<MedicineDto> listMedicineDtoSource = medicineService.getGetAllOrderByMedicineName();
-      for (MedicineDto dtoResult : listResult) {
-        for (int i = 0; i < listMedicineDtoSource.size(); i++) {
-          if (listMedicineDtoSource.get(i).equals(dtoResult)) {
-            listMedicineDtoSource.set(i, dtoResult);
-            break;
-          }
-        }
-
-      }
-      listResult = listMedicineDtoSource;
-    }
-    else {
+      listResult = this.getListMedicineLastestCustomerBought(cus.get(cus.size() - 1));
+    } else {
       listResult = medicineService.getGetAllOrderByMedicineName();
     }
     return listResult;
   }
 
+  public List<MedicineDto> getListMedicineLastestCustomerBought(Customer customer){
+    List<MedicineDto> listResult = null;
+    // Lấy ra danh sách các order mà số này đã mua. sắp xếp theo thời gian từ gần
+    // tới xa
+    List<SellOrder> listSellOrderBought =
+        sellMedicineService.getListSellOrderByCustomerDescTime(customer);
+    // Lấy ra danh sách các detail của order sắp xếp the thời gian từ gần tới xa.
+    List<SellOrderDetail> listSellOrderDetail =
+        sellMedicineService.getListSellOrderDetailByListSellOrder(listSellOrderBought);
+    listResult = this.initListMedicineBoughtFromSellOrderDetail(listSellOrderDetail);
+    // Update những loại thuốc có mua vào danh sách thuốc rồi trả về cho client
+    listResult = this.mergeListMedicineBoughtToMedicineSource(listResult);
+    return listResult;
+  }
+
   /**
    * Get list distinct all customer name.
-   * 
+   *
    * @param name
    * @return
    */
@@ -177,7 +206,23 @@ public class CustomerService {
   }
 
   /**
+   * @param name
+   * @return
+   */
+  public List<String> getListFarmName(String name) {
+    List<String> listName = null;
+    if (StringUtils.isEmpty(name)) {
+      name = "%%";
+    } else {
+      name = "%" + name + "%";
+    }
+    listName = customerRepository.findListFarmName(name);
+    return listName;
+  }
+
+  /**
    * Get list distinct all customer phone.
+   *
    * @param phone
    * @return
    */
@@ -193,9 +238,12 @@ public class CustomerService {
   }
 
 
-
+  /**
+   * @param name
+   * @return
+   */
   public CustomerDto getLastestCustomerByName(String name) {
-    if(StringUtils.isEmpty(name)) {
+    if (StringUtils.isEmpty(name)) {
       return new CustomerDto();
     }
     List<Customer> list = customerRepository.findByName(name);
@@ -207,7 +255,7 @@ public class CustomerService {
   }
 
   public CustomerDto getLastestCustomerByPhone(String phone) {
-    if(StringUtils.isEmpty(phone)) {
+    if (StringUtils.isEmpty(phone)) {
       return new CustomerDto();
     }
     List<Customer> list = customerRepository.findByPhoneNumber(phone);
@@ -219,20 +267,37 @@ public class CustomerService {
   }
 
   /**
-   * (1).Tìm theo id nếu tồn tại trả về customer đó, không làm gì cả.
-   * (2)Nếu tìm theo id không có, tìm theo số điên thoại, nếu có thì update thông tin của customer đó,
-   * Nêu không tìm thấy theo 2 điều kiện trên thì tạo customer mới, Trường Name và trại dùng thuốc
-   * để là khách mua lẻ, nếu trống
+   * @param famrName
+   * @return
+   */
+  public CustomerDto getLastestCustomerByFarmName(String famrName) {
+    if (StringUtils.isEmpty(famrName)) {
+      return new CustomerDto();
+    }
+    Customer list = customerRepository.findTop1ByTraiDungThuocOrderByIdDesc(famrName);
+    if (list == null ) {
+      return null;
+    }
+    Customer cus = list;
+    return customerMapper.toDto(cus);
+  }
+
+  /**
+   * (1).Tìm theo id nếu tồn tại trả về customer đó, không làm gì cả. (2)Nếu tìm theo id không có,
+   * tìm theo số điên thoại, nếu có thì update thông tin của customer đó, Nêu không tìm thấy theo 2
+   * điều kiện trên thì tạo customer mới, Trường Name và trại dùng thuốc để là khách mua lẻ, nếu
+   * trống
+   *
    * @param customer
    * @return
    */
-  public Customer createOrUpdateCustomer(Customer customer){
+  public Customer createOrUpdateCustomer(Customer customer) {
     if (customer != null) {
       if (customer.getId() != null) {
         Optional<Customer> getCustomerById = customerRepository
             .findById(customer.getId());
         //(1)Tìm theo id nếu tồn tại trả về customer đó, không làm gì cả.
-        if(getCustomerById.isPresent()){
+        if (getCustomerById.isPresent()) {
           return getCustomerById.get();
         }
       }
@@ -245,6 +310,7 @@ public class CustomerService {
         customer.setId(oldCustomer.getId());
         customerRepository.save(customer);
       } else {
+        //Create new Customer
         // if no name, or no phone or ...
         if (StringUtils.isEmpty(customer.getName())
             && StringUtils.isEmpty(customer.getPhoneNumber())
@@ -253,11 +319,11 @@ public class CustomerService {
           if (StringUtils.isEmpty(customer.getName())) {
             customer.setName("Khách lẻ");
           }
-          if(StringUtils.isEmpty(customer.getTraiDungThuoc())){
+          if (StringUtils.isEmpty(customer.getTraiDungThuoc())) {
             customer.setTraiDungThuoc("Khách lẻ");
           }
-          customer.setId(null);
         }
+        customer.setId(null);
         customer = customerRepository.save(customer);
       }
 
